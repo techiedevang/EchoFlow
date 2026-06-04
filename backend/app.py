@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
-from google import genai
+import google.generativeai as genai
 from google.api_core.exceptions import GoogleAPICallError # Correct exception for reliable error handling
 from pymongo import MongoClient
 from datetime import datetime, UTC
@@ -71,8 +71,8 @@ try:
     if not GEMINI_API_KEY:
         raise ValueError("Gemini API key missing")
     
-    # Initialize the new Client
-    client_gemini = genai.Client(api_key=GEMINI_API_KEY)
+    # Configure Gemini API
+    genai.configure(api_key=GEMINI_API_KEY)
     
     MODEL_NAME = "gemini-2.5-flash"  # Default reliable model
     
@@ -88,10 +88,8 @@ def call_gemini_with_retry(prompt: str):
     """
     for i in range(MAX_RETRIES):
         try:
-            response = client_gemini.models.generate_content(
-                model=MODEL_NAME,
-                contents=prompt
-            )
+            model = genai.GenerativeModel(MODEL_NAME)
+            response = model.generate_content(prompt)
             return response.text
         
         # Catch standard Google API call errors

@@ -65,6 +65,13 @@ bun.lockb
 # Render
 .render/
 
+# Docker
+Dockerfile.backend
+Dockerfile.frontend
+docker-compose.override.yml
+.docker/
+.dockerignore
+
 # MongoDB
 mongo_data/
 

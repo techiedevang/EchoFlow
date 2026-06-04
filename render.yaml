@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: echoflow-frontend
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        value: https://echoflow-backend.onrender.com
+
+  - type: web
+    name: echoflow-backend
+    runtime: python
+    plan: free
+    branch: main
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: MONGODB_URI
+        fromDatabase:
+          name: echoflow-db
+          property: connectionString
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+
+databases:
+  - name: echoflow-db
+    databaseName: echoflow
+    plan: free

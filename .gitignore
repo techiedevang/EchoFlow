@@ -12,6 +12,33 @@ node_modules
 dist
 dist-ssr
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+.venv
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
 # Build directories (if applicable)
 build
 out
@@ -34,3 +61,14 @@ bun.lockb
 *.njsproj
 *.sln
 *.sw?
+
+# Render
+.render/
+
+# MongoDB
+mongo_data/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

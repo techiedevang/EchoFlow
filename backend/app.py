@@ -21,8 +21,26 @@ load_dotenv()
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
-app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+
+# CORS Configuration for production
+ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "https://echoflow-frontend.onrender.com",
+    "https://echoflow-backend.onrender.com"
+]
+
+CORS(app, resources={
+    r"/api/*": {
+        "origins": ALLOWED_ORIGINS,
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "max_age": 3600
+    }
+})
+
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+app.config['ENV'] = os.getenv("FLASK_ENV", "production")
 
 # --- Global Variables for Retry Logic ---
 MAX_RETRIES = 5
@@ -30,8 +48,8 @@ BASE_DELAY = 1  # Seconds to wait before first retry
 
 # --- Database Connection (MongoDB) ---
 try:
-    MONGO_URI = os.getenv("MONGO_URI")
-    MONGO_DB = os.getenv("MONGO_DB")
+    MONGO_URI = os.getenv("MONGODB_URI") or os.getenv("MONGO_URI")
+    MONGO_DB = os.getenv("MONGO_DB", "echoflow")
     
     if not MONGO_URI or not MONGO_DB:
         raise ValueError("MongoDB configuration missing")
@@ -49,7 +67,7 @@ except Exception as e:
 
 # --- Gemini API Configuration ---
 try:
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    GEMINI_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
     if not GEMINI_API_KEY:
         raise ValueError("Gemini API key missing")
     
@@ -276,5 +294,10 @@ def handle_500_error(e):
     return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == '__main__':
-    # Set debug=True for development errors
-    app.run(debug=True, port=5000, host='127.0.0.1')
+    # Configuration for development vs production
+    is_production = os.getenv("FLASK_ENV") == "production"
+    debug_mode = not is_production
+    port = int(os.getenv("PORT", 5000))
+    host = "0.0.0.0" if is_production else "127.0.0.1"
+    
+    app.run(debug=debug_mode, port=port, host=host)
